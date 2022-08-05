@@ -90,8 +90,8 @@ class House(Base):
     name = models.CharField(_('name'), max_length = 200, null = False)
     description = models.TextField(_('description'), max_length= 2000,  null = False, blank = False)
     
-    image = CloudinaryField('image', null = True)
-    video = CloudinaryField(resource_type = 'auto', null = True)
+    image = CloudinaryField('image', null = True, blank = True)
+    video = CloudinaryField(resource_type = 'auto', null = True, blank = True)
     price = models.DecimalField(_('price'), max_digits = 11, decimal_places= 2)
     currency = models.CharField(
         _('currency'), 

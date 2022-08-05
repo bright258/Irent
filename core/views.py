@@ -1,5 +1,6 @@
 #  in built django dependencies
 from django.shortcuts import render
+from jsonschema import ValidationError
 
 #  rest framework dependencies
 from rest_framework.views import APIView
@@ -78,8 +79,12 @@ class RetrieveHouse(RetrieveAPIView):
     queryset = House.objects.all()
 
     def get(self, request, pk,*args, **kwargs):
-        house = House.objects.get(pk = pk)
-        serializer = self.serializer_class(house)
+        try:
+            house = House.objects.get(pk = pk)
+            serializer = self.serializer_class(house)
+        except(House.DoesNotExist, ValueError):
+            return Response(
+                {'details': 'Item does not exist'}, status = status.HTTP_404_NOT_FOUND)
         return Response(serializer.data, status = status.HTTP_200_OK)
 
 
@@ -92,12 +97,14 @@ class UpdateHouse(UpdateAPIView):
     queryset = House.objects.all()
 
     def put(self, request, *args, **kwargs):
+        
         instance = self.get_object()
         serializer = self.get_serializer(
             instance,
             data = request.data, context = {'request':request} )
         serializer.is_valid(raise_exception = True)
         serializer.save()
+       
         return Response(
             {'detail': 'House Details updated successfully'},
             status = status.HTTP_200_OK 
@@ -116,9 +123,10 @@ class DeleteHouse(DestroyAPIView):
 
 
     def delete(self, request, pk ,*args, **kwargs):
+        
         house = House.objects.filter(pk = pk)
         house.delete()
-
+       
 
         return Response({'details':'Item successfully deleted'})
     
